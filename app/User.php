@@ -23,4 +23,12 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    /**
+     * relation for tasks
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function tasks(){
+        return $this->hasMany(Task::class);
+    }
 }
