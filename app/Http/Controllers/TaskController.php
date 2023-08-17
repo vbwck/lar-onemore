@@ -3,15 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use App\Repositories\TaskRepository;
 use Illuminate\Http\Request;
+use App\Http\Requests\TaskRequest;
 
 use App\Http\Requests;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
-    public function __construct()
+    public function __construct(TaskRepository  $tasks)
     {
         $this->middleware('auth');
+        $this->tasks = $tasks;
     }
 
     /**
@@ -21,7 +25,8 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $tasks = Task::all();
+        $user = Auth::user();
+        $tasks = $this->tasks->forUser($user);
         return view('tasks.index', [
             'tasks' => $tasks,
         ]);
@@ -34,18 +39,26 @@ class TaskController extends Controller
      */
     public function create()
     {
-        //
+        return view('tasks.create');
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  TaskRequest $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(TaskRequest $request)
     {
-        //
+        $user = Auth::user();
+        $user->tasks()
+            ->create(
+                [
+                    'name' => $request->name,
+                ]
+            );
+
+        return redirect(route('tasks.index'));
     }
 
     /**
@@ -88,8 +101,10 @@ class TaskController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Task $tasks)
     {
-        //
+        $this->authorize('isAuthor',$tasks);
+        $tasks->delete();
+        return redirect()->route('tasks.index');
     }
 }

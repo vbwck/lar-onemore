@@ -8,6 +8,7 @@
                 <div class="panel-heading">{{ trans('tasks.index.page_name') }}</div>
 
                 <div class="panel-body">
+                    <a href="{{ route('tasks.create') }}" class="btn btn-success"><i class="fa fa-plus"></i>  Create new task</a>
                     <table class="table table-striped task-table">
                         <thead>
                             <tr>
@@ -22,7 +23,11 @@
                                     <div>{{ $task->name }}</div>
                                 </td>
                                 <td>
-                                    <!-- TODO: удалить кнопку -->
+                                    <form action="{{ route('tasks.destroy', $task->id) }}" method="post">
+                                        {{ csrf_field() }}
+                                        {{ method_field('DELETE') }}
+                                        <button class="btn btn-danger"><i class="fa fa-trash"></i></button>
+                                    </form>
                                 </td>
                             </tr>
                         @endforeach
